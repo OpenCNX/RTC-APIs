@@ -34,8 +34,25 @@ const requests = [
 fetch.Promise.all(requests).
     then(resp => {
       const [bus, statuses] = resp;
-      const s = statuses.map(status => bus[status.mid] ? {...status, ...bus[status.mid]} : status);
-      console.log(s);
+      return statuses.map(status => bus[status.mid] ? {...status, ...bus[status.mid]} : status);
+    }).
+    then(buses => {
+      return buses.reduce((obj, bus) => {
+        const {
+          mid, date, lat, lng, spd, cos,
+          acc, line, mileage, bus_number, license_plate,
+        } = bus;
+        obj[bus.mid] = {mid, date, lat, lng, spd, cos, acc, line, mileage, bus_number, license_plate};
+        return obj;
+      }, {});
+    }).
+    then(resp => {
+      console.log(Object.entries(resp).length);
+      Object.entries(resp).
+          forEach(([key, value]) => {
+            console.log(`${key}:`, value);
+          });
+      return resp;
     }).
     catch(err => {
       console.log('got error when performing http requests');
